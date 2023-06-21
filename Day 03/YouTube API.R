@@ -21,11 +21,11 @@ library(purrr)
 
 
 ##use the basic API
-key <- "INSERT YOUR KEY HERE"
+key <- "AIzaSyC6nKZw-7JEDEfIkLQ1VFeBB-gAvB-W9Iw"
 
 #go to this site to find out channel id: https://commentpicker.com/youtube-channel-id.php
 HYBELABELID<-"UC3IZKseVpdzPSBaWxBxundA" #channel id
-BTSID <- "BTS" #user id
+BTSID <- "BANGTANTV" #user id
 base<- "https://www.googleapis.com/youtube/v3/"
 
 #get channel info with channel id for HYBELABEL channel
@@ -44,6 +44,7 @@ channel.HYBE <- as.data.frame(channel.json)
 
 #alternatively, you can use a username for BTS channel. 
 #for "part" you can also insert more at once to get additional information.
+
 api_params2 <- 
   paste(paste0("key=", key), 
         paste0("forUsername=", BTSID), 
