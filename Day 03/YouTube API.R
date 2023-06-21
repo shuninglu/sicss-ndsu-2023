@@ -21,7 +21,7 @@ library(purrr)
 
 
 ##use the basic API
-key <- "AIzaSyC6nKZw-7JEDEfIkLQ1VFeBB-gAvB-W9Iw"
+key <- "INSERT YOUR KEY HERE"
 
 #go to this site to find out channel id: https://commentpicker.com/youtube-channel-id.php
 HYBELABELID<-"UC3IZKseVpdzPSBaWxBxundA" #channel id
@@ -81,7 +81,7 @@ AGGchannels
 ##use OAuth credentials to get more information
 #documentation of tuber package https://cran.r-project.org/web/packages/tuber/tuber.pdf
 
-#autentication
+#authentication
 client_id<-"INSERT YOUR CLIENT ID HERE"
 client_secret<-"INSERT YOUR SECRET HERE"
 
