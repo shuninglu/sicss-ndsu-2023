@@ -20,7 +20,7 @@ library(tidyverse)
 library(purrr)  
 
 
-##Use the basic API
+##use the basic API
 key <- "INSERT YOUR KEY HERE"
 
 #go to this site to find out channel id: https://commentpicker.com/youtube-channel-id.php
@@ -43,7 +43,7 @@ channel.json <- fromJSON(json_result, flatten = T)
 channel.HYBE <- as.data.frame(channel.json)
 
 #alternatively, you can use a username for BTS channel. 
-#For part you can also insert more at once to get additional information.
+#for "part" you can also insert more at once to get additional information.
 api_params2 <- 
   paste(paste0("key=", key), 
         paste0("forUsername=", BTSID), 
@@ -57,8 +57,7 @@ json_result2 <- httr::content(api_result2, "text", encoding="UTF-8")
 channel.json2 <- fromJSON(json_result2, flatten = T)
 channel.BTS <- as.data.frame(channel.json2)
 
-
-#Compare the two channels by some indicators like views etc. We need to subset the data and create new indicators.
+#compare the two channels by some indicators like views etc. We need to subset the data and create new indicators.
 HYBEchannel <- channel.HYBE %>% mutate(Channel = "HYBE",
                                        Views= as.numeric(items.statistics.viewCount), 
                                        Videos = as.numeric(items.statistics.videoCount),
@@ -78,9 +77,10 @@ AGGchannels <- rbind(HYBEchannel, BTSchannel)
 AGGchannels
 
 
-##Use OAuth credentials to get more information
+##use OAuth credentials to get more information
 #documentation of tuber package https://cran.r-project.org/web/packages/tuber/tuber.pdf
 
+#autentication
 client_id<-"INSERT YOUR CLIENT ID HERE"
 client_secret<-"INSERT YOUR SECRET HERE"
 
@@ -93,22 +93,23 @@ yt_oauth(app_id = client_id,
 go_bts <- get_playlist_items(filter = c(playlist_id = "PL5hrGMysD_GuhcQJ2qaMDi__3MlZSsddA"), 
                                part = "contentDetails") 
 
-#Based on the video ids of all videos in that playlist, let's extract video id´s 
+#based on the video ids of all videos in that playlist, let's extract video id´s 
 go_bts_ids <- (go_bts$contentDetails.videoId)
 
-#Use the map_df command of the purrr package which needs a function as a parameter
+#use the map_df command of the purrr package which needs a function as a parameter
 #create a function using the get_stats function of the tuber package 
 get_all_stats <- function(id) {
   get_stats(video_id = id)
 } 
 
-#Store the stats information in a data frame with the map_df command which needs an object .x and a function .f
+#store the stats information in a data frame with the map_df command which needs an object .x and a function .f
 go_bts_AllStats <- map_df(.x = go_bts_ids, .f = get_all_stats)
 
-#Overview of the statistics of all videos in the playlist
+#overview of the statistics of all videos in the playlist
 go_bts_AllStats
 
 #get all comments from the 12th video
+#use the tuber function get_all_comments
 comments12 <- get_all_comments("hANHIFPst5k")
 
 str(comments12)
