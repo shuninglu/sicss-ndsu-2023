@@ -14,7 +14,7 @@ library(wordcloud)
 
 
 #read file
-#Twitter dataset of tweets from NDSU and UND
+#Twitter data set of tweets from NDSU and UND
 tweets <- readRDS(file = "tweets.rds")
 
 #prepare covariates - month
@@ -44,10 +44,10 @@ clean_tweets <- function(x) {
     # Remove any trailing whitespace around the text
     str_trim("both")
 }
-tweets$text<-tweets$text %>% clean_tweets
+tweets$text1<-tweets$text %>% clean_tweets
 
 #tokenization
-tweetCorpus <- corpus(tweets$text)
+tweetCorpus <- corpus(tweets$text1)
 tweetCorpus <- tweetCorpus %>%
   tokens(what = "word") %>%
   tokens_remove(c(stopwords("english")))
@@ -73,8 +73,9 @@ out <- prepDocuments(tweets.stm$documents,
 #2.Interpretability and relevance of topics
 
 #Let's find the optimal K, this will take a long time, be prepared
-#storage <- searchK(out$documents, out$vocab, K = c(3:10),
-#                 data=out$meta)
+#storage <- searchK(out$documents, out$vocab, K = c(3:6),
+                 data=out$meta)
+#storage
 
 ## results
 #  K   exclus    semcoh   heldout residual     bound    lbound em.its
@@ -112,11 +113,11 @@ topwords[1:5]
 par(bty="n",col="grey40",lwd=6)
 plot(model, type = c("summary"),
      labeltype = c("frex"),
-     topic.names = c("Topic 1: ????",
-                     "Topic 2: ????",
-                     "Topic 3: ????",
-                     "Topic 4: ????",
-                     "Topic 5: ????"),
+     topic.names = c("Topic 1: proud and happy",
+                     "Topic 2: scholarship and resources",
+                     "Topic 3: degree and program",
+                     "Topic 4: unamed",
+                     "Topic 5: STEM"),
      main = c("Topic distribution"),xlim = c(0, 0.5),
      custom.labels="")
 
@@ -150,7 +151,7 @@ topiceffect1
 #distribution of specific topic by university
 plot(x = result1, 
      covariate = "university", 
-     topic = c(5), 
+     topic = c(1), 
      model = model, 
      method = "pointestimate",
      xlim = c(0.1, 0.5))
@@ -185,3 +186,29 @@ result3 <- estimateEffect(1:5 ~ month + university + month*university, model,
 topiceffect3<-summary(result3, topics = c(1:5))
 topiceffect3
 
+#identify tweets with highest topic 1 probability
+#given the stm model data does not match the original tweets data,
+#we need to do some data cleaning
+
+#find the indices of documents in the corpus with non-empty tokens
+non_empty_indices <- sapply(tweetcorpus, function(tokens) length(tokens) > 0)
+
+#filter out documents without tokens in the corpus
+filtered_tweetcorpus <- tweetcorpus[non_empty_indices]
+
+#update the original file by removing rows without tokens 
+filtered_tweets <- tweets[non_empty_indices, ]
+
+#update the original file by removing rows deleted during stm preparation
+updated_tweets<-filtered_tweets[-out$docs.removed,]
+length(updated_tweets)
+
+#find those top 3 tweets representing topic 1
+topic1<-findThoughts(model,
+                     texts = updated_tweets$text,
+                     topics = 1,
+                     n=3)
+topic1
+
+
+tweets$order<-c(1:1999)
