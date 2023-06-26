@@ -209,6 +209,3 @@ topic1<-findThoughts(model,
                      topics = 1,
                      n=3)
 topic1
-
-
-tweets$order<-c(1:1999)
