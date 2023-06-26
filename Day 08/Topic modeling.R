@@ -5,8 +5,7 @@
 ##      Day 8 Topic Modeling         ##
 ##      Author: Shuning Lu         ####
 
-
-#library(rtweet) for collecting tweets
+#load packages
 library(lubridate) #for extracting dates
 library(tidyverse)
 library(quanteda)
@@ -15,6 +14,7 @@ library(wordcloud)
 
 
 #read file
+#Twitter dataset of tweets from NDSU and UND
 tweets <- readRDS(file = "tweets.rds")
 
 #prepare covariates - month
