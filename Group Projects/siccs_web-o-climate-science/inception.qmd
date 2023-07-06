@@ -1,0 +1,46 @@
+---
+title: "Web of (climate comm) Science"
+subtitle: "Using computational techniques to study climate communication research"
+format:
+  revealjs: 
+    slide-number: true
+    chalkboard: 
+      buttons: false
+    preview-links: auto
+#    logo: images/quarto.png
+    css: styles.css
+    footer: <sicss@ndsu, 2023>
+---
+
+# Overview
+
+## Project: Web of (climate comm) Science
+
+* using computational social science techniques to explore academic publications
+* focus: articles+ about climate and communication
+* source: Web of Science database
+
+## WoS Query: (1 OR 2) AND 3 AND 4
+
+1. In title: (climate AND (warm* OR chang* OR crisis)) OR (glob* AND warm*)
+2. In abstract: (climate AND (warm* OR chang* OR crisis)) OR (glob* AND warm*)
+3. In any field: communicat*
+4. Document type: article, proceeding, review article, book chapter, early access AND Language: english
+
+
+*[Web of Science query](https://www.webofscience.com/wos/woscc/summary/e58d911f-50cd-46dd-95d6-812876deff76-940717b9/relevance/1)
+
+## The dataset
+
+* 13 downloads from WoS (1000 item limit, per download)
+* combined: 12229 articles, with 73 variables
+* key variables:
+  * abstract
+  * journal
+  * author(s)
+  * references
+  
+## Key libraries
+
+* [Bibliometrics](https://www.bibliometrix.org/vignettes/Introduction_to_bibliometrix.html)
+* [Quanteda](http://quanteda.io/)
