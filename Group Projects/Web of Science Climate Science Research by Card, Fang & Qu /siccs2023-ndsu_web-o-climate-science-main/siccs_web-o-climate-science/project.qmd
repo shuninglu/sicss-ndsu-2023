@@ -1,0 +1,98 @@
+# Project Overview
+
+## Project: Web of (climate) Science
+
+* using computational social science techniques to explore academic publications
+* focus: articles+ about climate and communication
+* source: Web of Science database
+
+
+## WoS Query: (1 OR 2) AND 3 AND 4
+
+1. In title: (climate AND (warm* OR chang* OR crisis)) OR (glob* AND warm*)
+2. In abstract: (climate AND (warm* OR chang* OR crisis)) OR (glob* AND warm*)
+3. In any field: communicat*
+4. Document type: article, proceeding, review article, book chapter, early access AND Language: english
+
+[Web of Science query](https://www.webofscience.com/wos/woscc/summary/e58d911f-50cd-46dd-95d6-812876deff76-940717b9/relevance/1)
+
+## The dataset
+
+* 13 downloads from WoS (1000 item limit, per download)
+* combined: 12229 articles, with 73 variables
+* key variables:
+  * abstract
+  * journal
+  * author(s)
+  * references
+
+```{r, results='hide'}
+library(janitor)
+library(tidyverse)
+library(readxl)
+
+# read in individual files downloaded manually from WoS
+data1 <- read_excel("data/12k/wos_cc_1-1000.xls")
+data2 <- read_excel("data/12k/wos_cc_1001-2000.xls")
+data3 <- read_excel("data/12k/wos_cc_2001-3000.xls")
+data4 <- read_excel("data/12k/wos_cc_3001-4000.xls")
+data5 <- read_excel("data/12k/wos_cc_4001-5000.xls")
+data6 <- read_excel("data/12k/wos_cc_5001-6000.xls")
+data7 <- read_excel("data/12k/wos_cc_6001-7000.xls")
+data8 <- read_excel("data/12k/wos_cc_7001-8000.xls")
+data9 <- read_excel("data/12k/wos_cc_8001-9000.xls")
+data10 <- read_excel("data/12k/wos_cc_9001-10000.xls")
+data11 <- read_excel("data/12k/wos_cc_10001-11000.xls")
+data12 <- read_excel("data/12k/wos_cc_11001-12000.xls")
+data13 <- read_excel("data/12k/wos_cc_12001-12229.xls")
+
+# combine files and write to csv
+data_full <- rbind(data1,
+                   data2,
+                   data3,
+                   data4,
+                   data5,
+                   data6,
+                   data7,
+                   data8,
+                   data9,
+                   data10,
+                   data11,
+                   data12,
+                   data13)
+data_full %>%
+  clean_names() %>%
+  write.csv("data/12k/full12k.csv")
+
+
+data_full <- read_csv("data/12k/full12k.csv")
+glimpse(data_full)
+
+
+data_sub <- read_csv("data/12k/full12k.csv") %>%
+  select(article_title,
+         source_title,
+         abstract,
+         journal_abbreviation,
+         publication_date,
+         publication_year,
+         doi,
+         wo_s_categories,
+         ids_number,
+         ut_unique_wos_id
+  )
+
+
+data_sub %>%
+  write_csv("data/12k/fdata_sub.csv")
+
+set.seed(12345) 
+test_data <- sample_n(data_sub, 200) %>%
+  write_csv("data/12k/sample200.csv")
+
+```
+
+
+
+
+

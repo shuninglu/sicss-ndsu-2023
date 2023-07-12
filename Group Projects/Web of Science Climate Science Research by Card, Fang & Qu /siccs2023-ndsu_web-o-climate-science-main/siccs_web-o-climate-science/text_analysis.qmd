@@ -1,0 +1,295 @@
+# Text analysis
+
+```{r}
+require(quanteda)
+options(width = 110)
+require(readtext)
+library(tidyverse)
+require(quanteda.textstats)
+require(quanteda.textplots)
+fdata_sub <- read_csv("data/12k/fdata_sub.csv")
+library(knitr)
+```
+
+## Ngram analysis in Quanteda
+
+
+### Creating the corpus object
+
+Sample of corpus
+```{r}
+corp <- corpus(fdata_sub, text_field = "abstract")
+
+glimpse(docvars(corp))
+```
+
+
+
+### Creating the tokens object
+
+Head (first bigrams)
+
+```{r}
+toks <- tokens(corp, remove_punct = TRUE)
+
+toks_nostop <- tokens_select(toks, pattern = stopwords("en"), selection = "remove")
+
+toks_ngram <- tokens_ngrams(toks_nostop, n = 2)
+
+head(toks_ngram[[1]], 5)
+```
+
+
+### Creating the document feature matrix
+
+```{r}
+dfm <- dfm(toks_ngram)
+topfeatures(dfm)
+```
+
+
+
+In abstracts, raw counts by year:
+
+* "climate_change"
+* "global_warming"
+* "climate_crisis"
+
+```{r}
+
+# Get frequency grouped by year
+freq_grouped <- textstat_frequency(dfm(toks_ngram), 
+                                   groups = publication_year)
+
+
+
+# Filter the term "climate"
+freq_climate_change <- subset(freq_grouped, freq_grouped$feature %in% "climate_change")  
+
+freq_global_warming <- subset(freq_grouped, freq_grouped$feature %in% "global_warming")
+
+freq_climate_crisis <- subset(freq_grouped, freq_grouped$feature %in% "climate_crisis")
+
+
+bound_frames <- rbind(
+      freq_global_warming,
+      freq_climate_change,
+      freq_climate_crisis)
+
+fig01 <- ggplot(bound_frames %>% filter(group != "2023"), aes(x = as.numeric(group), y = frequency, color = feature)) +
+    geom_point() + 
+    geom_line() +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Frequency") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+   theme_minimal() +
+  labs(title = "Phraseology, emerging")
+
+fig01
+```
+
+## Climate Frames
+
+Proportion of phrase: counts divided by sum of target phrases in year
+
+```{r}
+# Get frequency grouped by year
+freq_grouped <- textstat_frequency(dfm(toks_ngram), 
+                                   groups = publication_year)
+
+
+
+# Filter the term "climate"
+freq_climate_change <- subset(freq_grouped, freq_grouped$feature %in% "climate_change")  
+
+freq_global_warming <- subset(freq_grouped, freq_grouped$feature %in% "global_warming")
+
+freq_climate_crisis <- subset(freq_grouped, freq_grouped$feature %in% "climate_crisis")
+
+
+bound_frames <- rbind(
+      freq_global_warming,
+      freq_climate_change,
+      freq_climate_crisis) %>%
+  group_by(group) %>%
+  mutate(prop = frequency/sum(frequency)) %>%
+  ungroup()
+
+fig02 <- ggplot(bound_frames %>% filter(group != "2023") , aes(x = as.numeric(group), y = prop, color = feature)) +
+    geom_point() + 
+    geom_line() +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Frequency") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+   theme_minimal()
+
+fig02
+```
+
+## Phrases of interest
+
+Key phrases, grouped loosely:
+
+Equity and justice
+
+* climate justice
+* environmental justice
+* environmental equity
+* climate equity
+* environmental equity
+* climate equity
+
+Consensus and denial
+
+* scientific consensus
+* climate denial
+* climate skepticism
+
+```{r}
+
+freq_climate_action <- subset(freq_grouped, freq_grouped$feature %in% "climate_action")
+
+# equity and justice frame
+
+freq_climate_justice <- subset(freq_grouped, freq_grouped$feature %in% "climate_justice")
+
+freq_enviro_justice <- subset(freq_grouped, freq_grouped$feature %in% "environmental_justice")
+
+freq_env_equity <- subset(freq_grouped, freq_grouped$feature %in% "environmental_equity")
+
+freq_clim_equity <- subset(freq_grouped, freq_grouped$feature %in% "climate_equity")
+
+freq_climate_adaptation <- subset(freq_grouped, freq_grouped$feature %in% "climate_adaptation")
+
+# consensus, denial
+
+freq_sci_consensus <- subset(freq_grouped, freq_grouped$feature %in% "scientific_consensus")
+
+freq_climate_denial <- subset(freq_grouped, freq_grouped$feature %in% "climate_denial")
+
+freq_climate_skepticism <- subset(freq_grouped, freq_grouped$feature %in% "climate_skepticism")
+
+
+# bind above
+
+bound_something <- rbind(
+      freq_climate_denial,
+      freq_climate_skepticism,
+      freq_climate_action,
+      freq_climate_justice,
+      freq_enviro_justice,
+      freq_climate_adaptation,
+      freq_sci_consensus,
+      freq_env_equity,
+      freq_clim_equity
+      )
+
+fig03 <- ggplot(bound_something %>% filter(group != "2023"), aes(x = as.numeric(group), y = frequency, color = feature)) +
+    geom_point() + 
+    geom_line() +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Frequency") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_minimal() +
+  labs(title = "Bigrams of interest, over time")
+
+fig03
+```
+
+```{r}
+fig04 <- ggplot(bound_something %>% filter(group != "2023"), aes(x = as.numeric(group), y = frequency, color = feature)) +
+    geom_smooth(se=F) +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Frequency") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_minimal() +
+  labs(title = "bigrams of interest, over time (smoothed)")
+
+fig04
+```
+
+
+As a proportion...
+
+```{r}
+bound_st_prop <- bound_something %>%
+  group_by(feature) %>%
+  mutate(prop2 = frequency/sum(frequency)) %>%
+  ungroup()
+
+fig05 <- ggplot(bound_st_prop %>% filter(group != "2023"), aes(x = as.numeric(group), y = prop2, color = feature)) +
+    geom_point() + 
+    geom_line() +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("proportion of bigrams of interest") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_minimal() +
+  labs(title = "bigrams of interest, as a proportion of total")
+
+fig05
+```
+Grouped
+
+* Belief = climate skepticism, climate denial, scientific consensus
+* Equity = climate justice, environmental justice, climate equity, environmental equity
+* Response = climate action, climate adaptation
+
+```{r}
+group_frame <- bound_something %>%
+  mutate(feature_2 = ifelse(feature %in% c("climate_action", "climate_adaptation"), "climate_response", 
+                            ifelse(feature %in% c("climate_skeptism", "climate_denial", "scientific_consensus"), "climate_belief", 
+                                   "climate_equity")))
+
+fig06 <- ggplot(group_frame %>% filter(group != "2023"), aes(x = as.numeric(group), y = frequency, color = feature_2)) +
+    geom_smooth(se=F) +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Group frequency") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_minimal() +
+  labs(title = "Shifting foci: \nIs it real? Who will it affect? What do we do? ",
+       subtitle = "grouped bigrams as frames")
+
+fig06
+```
+
+
+```{r}
+group_frame_prop <- bound_st_prop %>%
+  mutate(feature_2 = ifelse(feature %in% c("climate_action", "climate_adaptation"), "climate_response", 
+                            ifelse(feature %in% c("climate_skeptism", "climate_denial", "scientific_consensus"), "climate_belief", 
+                                   "climate_equity")))%>%
+  group_by(feature_2) %>%
+  mutate(prop2 = frequency/sum(frequency)) %>%
+  ungroup()
+
+fig07 <- ggplot(group_frame_prop %>% filter(group != "2023"), aes(x = as.numeric(group), y = prop2, color = feature_2)) +
+    geom_smooth(se=F) +
+    scale_y_continuous() +
+    xlab(NULL) + 
+    ylab("Proportion of Sum") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Shifting foci: \nIs it real? Who will it affect? What do we do? ") +
+  theme_minimal()
+
+fig07
+
+```
+
+## Outputs
+
+```{r, include=FALSE}
+fig01 
+fig02
+fig03
+fig04
+fig05
+fig06
+fig07
+```
+

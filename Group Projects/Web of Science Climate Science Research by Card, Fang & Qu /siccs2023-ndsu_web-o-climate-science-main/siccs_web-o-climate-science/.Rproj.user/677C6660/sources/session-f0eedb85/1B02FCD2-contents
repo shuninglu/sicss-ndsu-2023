@@ -1,0 +1,39 @@
+project:
+  type: website
+
+website:
+  title: "Web of (climate) Science"
+  page-navigation: true
+  back-to-top-navigation: true
+  reader-mode: true
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - href: index.qmd
+        text: Home
+      - project.qmd
+      - text_analysis.qmd
+      - ke.qmd
+      - yan.qmd
+#      - inception.qmd
+
+format:
+  html:
+    theme:
+      light: yeti
+      dark: darkly
+    css: styles.css
+    toc: true
+    code-fold: true
+    fig-width: 9
+    fontsize: 20px
+    code-tools: true
+
+execute:
+  freeze: auto  # re-render only when source changes
+  include: true
+  warning: false
+  message: false
+  echo: true
+
